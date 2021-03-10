@@ -4,6 +4,7 @@ import argparse
 import csv
 from elasticsearch import helpers
 import json
+from flatten_json import flatten
 
 '''
 Tool for exporting elasticsearch query to CSV file
@@ -88,7 +89,7 @@ for i in aliases:
 '''
 Fetch the mapping in order to create the header
 '''
-mapping=es.indices.get_mapping(index=index,doc_type=doc_type)[index]['mappings'][doc_type]['properties'].keys()
+mapping=es.indices.get_mapping(index=index,doc_type=doc_type)[index]['mappings'][doc_type]['properties']
 
 '''
 Set handler to elasticsearch
@@ -103,11 +104,12 @@ with open(output_files, 'w') as f:
         w = csv.DictWriter(f, mapping, delimiter=delimiter,quoting=csv.QUOTE_MINIMAL)
     else:
         fields = fields.split(",")
-        w = csv.DictWriter(f, [i for i in mapping if i in fields], delimiter=delimiter, extrasaction='ignore',quoting=csv.QUOTE_MINIMAL )
+        w = csv.DictWriter(f, fields, delimiter=delimiter, extrasaction='ignore',quoting=csv.QUOTE_MINIMAL )
     w.writeheader()
     try:
         for row in scanResp:
-            _ = w.writerow(row['_source'])
+            src = flatten(row['_source'], '.')
+            _ = w.writerow(src)
             counter +=1
     except elasticsearch.exceptions.NotFoundError:
         pass
