@@ -23,6 +23,8 @@ parser.add_argument("--output", dest="output",
                     help="output file default: output.csv", default="output.csv")
 parser.add_argument("-d", "--delimiter", dest="delimiter",
                     help="csv delimiter - default - , ", default=',')
+parser.add_argument("--query-file", dest="query_file",
+                    help="json customized query from file - this is more important than query and query_string", default=None)
 parser.add_argument("--query", dest="json_query",
                     help="json customized query if query exists, query_string will be ignored", default=None)
 
@@ -43,6 +45,7 @@ delimiter = args['delimiter']
 fields= args['fields']
 size=int(args['size'])
 json_query = args['json_query']
+query_file = args['query_file']
 
 
 
@@ -55,16 +58,21 @@ es = elasticsearch.Elasticsearch(host)
 '''
 Get query from input
 '''
-if json_query:
-    query = json.loads(json_query)
+if query_file:
+    qfile = open(query_file)
+    query = json.loads(qfile.read())
+    qfile.close()
 else:
-    query = dict(
+    if json_query:
+        query = json.loads(json_query)
+    else:
         query = dict(
-            query_string=dict(
-                query=query_string
+            query = dict(
+                query_string=dict(
+                    query=query_string
+                )
             )
         )
-    )
 
 
 '''
