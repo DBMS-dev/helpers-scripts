@@ -53,7 +53,7 @@ query_file = args['query_file']
 '''
 Create elasticsearch instance
 '''
-es = elasticsearch.Elasticsearch(host)
+es = elasticsearch.Elasticsearch(host, timeout=6000)
 
 
 '''
@@ -74,7 +74,7 @@ else:
                 )
             )
         )
-
+query['_source'] = fields.split(",")
 
 '''
 Get real index name in case index is alias
@@ -94,7 +94,7 @@ mapping=es.indices.get_mapping(index=index,doc_type=doc_type)[index]['mappings']
 '''
 Set handler to elasticsearch
 '''
-scanResp= helpers.scan(client=es, query=query, scroll= "10m", index=index,size=size, doc_type=doc_type, clear_scroll=False, request_timeout=300)
+scanResp= helpers.scan(client=es, query=query, scroll= "10m", index=index,size=size, doc_type=doc_type, clear_scroll=False, request_timeout=3000)
 
 
 
