@@ -1,0 +1,2 @@
+elasticsearch==6.8.13
+flatten_json==0.1.13
